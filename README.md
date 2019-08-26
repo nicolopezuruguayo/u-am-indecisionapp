@@ -1,0 +1,1 @@
+add file app.js to /public/scripts/app.js
