@@ -1,4 +1,3 @@
-console.log('Hi carapalida')
 class IndecisionApp extends React.Component {
     constructor(props){
         super(props);
