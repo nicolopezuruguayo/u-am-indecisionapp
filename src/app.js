@@ -1,63 +1,53 @@
-// Testing github credentials. uau
-class IndecisionApp extends React.Component {
+class Counter extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            options:['one','two','three'],
-            title:'Indecision App!',
-            subtitle:'Put your life in the hands of a computer'
+            count: 0
         };
-        this.onAddOptionHandler = this.onAddOptionHandler.bind(this);
-        this.onRemoveAll = this.onRemoveAll.bind(this);
-        this.onSuggest = this.onSuggest.bind(this);
-        this.onOptionDelete = this.onOptionDelete.bind(this);
+
+        this.onIncrease = this.onIncrease.bind(this);
+        this.onDecrease = this.onDecrease.bind(this);
+        this.onReset = this.onReset.bind(this);
+
+        console.log('constructor');
     };
 
-    onAddOptionHandler(option){
-        if(option.trim() === ''){
-            return 'Option should contain a value';
-        };
-
-        if(this.state.options.indexOf(option) > -1){
-            return 'This option already exists';
-        }else{
-            this.setState((prevState) => {
-                return {
-                    options: prevState.options.concat(option)
-                }
-            });
+    componentWillMount(){
+        console.log('componentWillMount');
+        const num = localStorage.getItem('count');
+        if(num !== '' && !isNaN(num)){
+            this.setState({count: parseInt(num,10)})
         }
-    };
+    }
 
-    onRemoveAll(){
-        this.setState(() => {
-            return{
-                options:[]
-            };
-        });
-    };
+    componentDidUpdate(prevProps, prevState){
+        console.log('componentDidUpdate');
+        if(prevState.count !== this.state.count){
+            localStorage.setItem('count',this.state.count);
+        }
+    }
 
-    onSuggest(){
-        alert(this.state.options[Math.floor(Math.random() * this.state.options.length)]);
-    };
+    onIncrease(){
+        this.setState((prevState)=>{return {count: prevState.count + 1}})
+    }
 
-    onOptionDelete(opt){
-        this.setState((prevState) => {
-            return {
-                options: prevState.options.filter(option =>{
-                    return option !== opt
-                })
-            };
-        });
-    };
+    onDecrease(){
+        this.setState((prevState)=>{return {count: prevState.count - 1}})
+    }
+
+    onReset(){
+        this.setState({count: 0});
+    }
 
     render(){
+        console.log('render');
         return(
             <div>
-                <Header title={this.state.title} subtitle={this.state.subtitle} />
-                <Action removeAll={this.onRemoveAll} suggest={this.onSuggest} />
-                <Options options={this.state.options} optionDelete={this.onOptionDelete}/>
-                <AddOption addOption={this.onAddOptionHandler}/>
+                <Header title="Counter"/>
+                <CounterPlace counter={this.state.count} />
+                <Increase increase={this.onIncrease} />
+                <Decrease decrease={this.onDecrease} />
+                <Reset reset={this.onReset} />
             </div>
         );
     };
@@ -67,64 +57,40 @@ const Header = (props) => {
     return(
         <div>
             <h1>{props.title}</h1>
-            <p>{props.subtitle}</p>
-        </div>            
+        </div>
     );
-};
+}
 
-const Action = (props) => {
+const CounterPlace = (props) => {
     return(
         <div>
-            <button onClick={props.suggest}>What should I do ?</button>
-            <button onClick={props.removeAll}>Remove All</button>
+            <p>{props.counter}</p>
         </div>
     );
-};
+}
 
-const Options = (props) => {
+const Increase = (props) => {
     return(
-        props.options.map(option => <Option item={option} delete={()=>props.optionDelete(option)} />)
-    );
-};
-
-const Option = (props) => {
-    return (
-        <div>            
-            <p><button onClick={props.delete}>X</button> {props.item}</p>
+        <div>
+            <button onClick={props.increase}>+</button>
         </div>
     );
-};
+}
 
-class AddOption extends React.Component {
-	constructor(props){
-        super(props);
-        this.state = {
-            error:''
-        };
-        this.onSubmitHandler = this.onSubmitHandler.bind(this);
-    };
+const Decrease = (props) => {
+    return(
+        <div>
+            <button onClick={props.decrease}>-</button>
+        </div>
+    );
+}
 
-    onSubmitHandler(e){
-        e.preventDefault();
-        const option = e.target.elements.option.value;
-        if(this.props.addOption(option) !== undefined){
-            this.setState({ error: this.props.addOption(option)});
-        }else{
-            this.setState({error:''})
-        }
-    };
+const Reset = (props) => {
+    return(
+        <div>
+            <button onClick={props.reset}>Reset</button>
+        </div>
+    );
+}
 
-    render(){
-        return(
-            <div>
-                {this.state.error}
-                <form onSubmit={this.onSubmitHandler}>
-                    <input type="text" name="option"></input>
-                    <button>Add option</button>
-                </form>
-            </div>
-        );
-    };
-};
-
-ReactDOM.render(<IndecisionApp />, document.getElementById('app'));
+ReactDOM.render(<Counter />, document.getElementById('app'));
